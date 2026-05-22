@@ -3,3 +3,5 @@ pnpm-lock.yaml
 package-lock.json
 ticketing-system-clean.zip
 .git.bak/
+.next/
+.env
