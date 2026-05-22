@@ -1,0 +1,324 @@
+openapi: 3.0.3
+info:
+  title: Support Ticketing System API
+  description: Enterprise-grade ticketing and issue management system API
+  version: 1.0.0
+  contact:
+    name: Support Team
+    email: support@company.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://sb-2puni5ixbusx.vercel.run
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: admin@company.com
+        name:
+          type: string
+          example: Admin User
+        role:
+          type: string
+          enum: [admin, lead, agent, customer]
+          example: admin
+        department:
+          type: string
+          nullable: true
+          example: IT
+      required:
+        - id
+        - email
+        - name
+        - role
+
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        ticket_number:
+          type: string
+          example: TKT-2024-000001
+        subject:
+          type: string
+          example: Computer won't boot
+        description:
+          type: string
+          nullable: true
+          example: My laptop is not turning on
+        category:
+          type: string
+          enum: [Hardware, Software, Network, Security, Other]
+          example: Hardware
+        priority:
+          type: string
+          enum: [Critical, High, Medium, Low]
+          example: High
+        severity:
+          type: string
+          enum: [Critical, Major, Minor, Trivial]
+          example: Major
+        status:
+          type: string
+          enum: [Open, In Progress, Resolved, Closed]
+          example: Open
+        source:
+          type: string
+          enum: [Portal, Email, Phone, SMS, WhatsApp]
+          example: Portal
+        assigned_to:
+          type: integer
+          nullable: true
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - ticket_number
+        - subject
+        - category
+        - priority
+        - severity
+        - status
+        - created_at
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@company.com
+        password:
+          type: string
+          example: password123
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            user:
+              $ref: '#/components/schemas/User'
+      required:
+        - success
+        - data
+
+    CreateTicketRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          example: Email not working
+        description:
+          type: string
+          nullable: true
+          example: Cannot send emails from Outlook
+        category:
+          type: string
+          enum: [Hardware, Software, Network, Security, Other]
+          default: Software
+        priority:
+          type: string
+          enum: [Critical, High, Medium, Low]
+          default: Medium
+        severity:
+          type: string
+          enum: [Critical, Major, Minor, Trivial]
+          default: Minor
+        source:
+          type: string
+          enum: [Portal, Email, Phone, SMS, WhatsApp]
+          default: Portal
+      required:
+        - subject
+
+    TicketsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+
+paths:
+  /api/auth:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate user and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Missing email or password
+        '401':
+          description: Invalid credentials
+
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Validate JWT token and return user info
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /api/tickets:
+    get:
+      tags:
+        - Tickets
+      summary: List tickets
+      description: Get paginated list of tickets with optional filters
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [all, Open, In Progress, Resolved, Closed]
+        - name: priority
+          in: query
+          description: Filter by priority
+          schema:
+            type: string
+            enum: [all, Critical, High, Medium, Low]
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+            enum: [all, Hardware, Software, Network, Security, Other]
+        - name: search
+          in: query
+          description: Search in subject and description
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of tickets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketsResponse'
+
+    post:
+      tags:
+        - Tickets
+      summary: Create ticket
+      description: Create a new support ticket
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '201':
+          description: Ticket created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Invalid request body
+        '401':
+          description: Unauthorized
