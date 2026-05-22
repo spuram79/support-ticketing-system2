@@ -165,7 +165,11 @@ export default function TicketsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredTickets.map((ticket) => (
-                    <tr key={ticket.id} className="hover:bg-gray-50">
+                    <tr
+                      key={ticket.id}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => router.push(`/tickets/${ticket.id}`)}
+                    >
                       <td className="px-6 py-4 text-sm font-medium text-primary-600">
                         {ticket.ticket_number}
                       </td>

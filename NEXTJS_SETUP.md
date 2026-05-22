@@ -2,6 +2,12 @@
 
 A comprehensive guide to setting up and running the Support Ticketing System Next.js application locally.
 
+## ⚠️ Important Notes
+
+- **This is a standalone Next.js application** that runs independently from the main monorepo
+- **SQLite database is used** - no separate database server needed
+- **Development server is NOT running yet** - you must install dependencies first
+
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
@@ -369,6 +375,46 @@ rm tickets.db
 
 # Restart the development server
 pnpm dev
+```
+
+**5. Missing Dependencies Error**
+
+If you see errors like `Cannot find module 'next'` or similar:
+
+```bash
+# Ensure you're in the nextjs-app directory
+cd nextjs-app
+
+# Install dependencies
+pnpm install
+
+# Or if pnpm fails, try npm
+npm install
+```
+
+**6. better-sqlite3 Installation Issues**
+
+The native module may fail to install on some systems:
+
+```bash
+# Set the installation flag
+export BAMF_THRESHOLD=1000
+pnpm install better-sqlite3
+
+# Or rebuild if already installed
+pnpm install --force better-sqlite3
+```
+
+**7. Tailwind CSS Not Working**
+
+If styles are not applied:
+
+```bash
+# Check the Tailwind configuration
+cat tailwind.config.js
+
+# Ensure the content paths are correct
+# Should include: './src/app/**/*.{js,ts,jsx,tsx,mdx}'
 ```
 
 ### Getting Help
