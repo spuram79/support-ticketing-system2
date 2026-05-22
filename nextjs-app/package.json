@@ -1,0 +1,35 @@
+{
+  "name": "support-ticketing-nextjs",
+  "version": "1.0.0",
+  "description": "Support Ticketing System - Next.js Edition (No Containerization)",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "15.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "better-sqlite3": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "tailwindcss": "^3.4.0",
+    "lucide-react": "^0.303.0",
+    "clsx": "^2.1.1",
+    "zustand": "^4.4.7",
+    "date-fns": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.3",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.2",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15"
+  }
+}
