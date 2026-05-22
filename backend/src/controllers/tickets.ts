@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../db';
 import { generateTicketNumber } from '../utils/ticketNumber';
 import { AuthRequest } from '../middleware/auth';
+import { logger } from '../utils/logger';
 
 export const getTickets = async (req: Request, res: Response): Promise<Response | void> => {
   try {
@@ -46,7 +47,7 @@ export const getTickets = async (req: Request, res: Response): Promise<Response 
       data: tickets,
     });
   } catch (error) {
-    console.error('Error fetching tickets:', error);
+    logger.error('Error fetching tickets:', error);
     return res.status(500).json({ error: 'Failed to fetch tickets' });
   }
 };
@@ -73,7 +74,7 @@ export const getTicketById = async (req: Request, res: Response): Promise<Respon
 
     return res.json({ success: true, data: ticket });
   } catch (error) {
-    console.error('Error fetching ticket:', error);
+    logger.error('Error fetching ticket:', error);
     return res.status(500).json({ error: 'Failed to fetch ticket' });
   }
 };
@@ -81,6 +82,14 @@ export const getTicketById = async (req: Request, res: Response): Promise<Respon
 export const createTicket = async (req: AuthRequest, res: Response): Promise<Response | void> => {
   try {
     const { subject, description, priority, type, categoryId, assigneeId } = req.body;
+
+    // Validate required fields
+    if (!subject) {
+      return res.status(400).json({ error: 'Subject is required' });
+    }
+    if (!description) {
+      return res.status(400).json({ error: 'Description is required' });
+    }
 
     const ticketNumber = await generateTicketNumber();
 
@@ -118,7 +127,7 @@ export const createTicket = async (req: AuthRequest, res: Response): Promise<Res
 
     return res.status(201).json({ success: true, data: ticket });
   } catch (error) {
-    console.error('Error creating ticket:', error);
+    logger.error('Error creating ticket:', error);
     return res.status(500).json({ error: 'Failed to create ticket' });
   }
 };
@@ -127,6 +136,12 @@ export const updateTicket = async (req: AuthRequest, res: Response): Promise<Res
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    // Check if ticket exists
+    const existingTicket = await prisma.ticket.findUnique({ where: { id } });
+    if (!existingTicket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
 
     const ticket = await prisma.ticket.update({
       where: { id },
@@ -146,7 +161,7 @@ export const updateTicket = async (req: AuthRequest, res: Response): Promise<Res
 
     return res.json({ success: true, data: ticket });
   } catch (error) {
-    console.error('Error updating ticket:', error);
+    logger.error('Error updating ticket:', error);
     return res.status(500).json({ error: 'Failed to update ticket' });
   }
 };
@@ -155,10 +170,16 @@ export const deleteTicket = async (req: Request, res: Response): Promise<Respons
   try {
     const { id } = req.params;
 
+    // Check if ticket exists first
+    const existingTicket = await prisma.ticket.findUnique({ where: { id } });
+    if (!existingTicket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
     await prisma.ticket.delete({ where: { id } });
     return res.json({ success: true, message: 'Ticket deleted' });
   } catch (error) {
-    console.error('Error deleting ticket:', error);
+    logger.error('Error deleting ticket:', error);
     return res.status(500).json({ error: 'Failed to delete ticket' });
   }
 };
@@ -177,7 +198,7 @@ export const getTicketStats = async (req: Request, res: Response): Promise<Respo
 
     return res.json({ success: true, data: result });
   } catch (error) {
-    console.error('Error fetching ticket stats:', error);
+    logger.error('Error fetching ticket stats:', error);
     return res.status(500).json({ error: 'Failed to fetch stats' });
   }
 };

@@ -6,7 +6,7 @@ import { createServer } from 'http';
 import ticketRoutes from './routes/tickets';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
-import { logger } from './db';
+import { logger } from './utils/logger';
 
 const app = express();
 const httpServer = createServer(app);
@@ -32,6 +32,15 @@ app.use(compression());
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path}`, { 
+    ip: req.ip, 
+    userAgent: req.get('user-agent') 
+  });
+  next();
+});
 
 // Routes
 app.get('/health', (req, res) => {
@@ -85,8 +94,23 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Error:', err.message);
-  res.status(500).json({ error: 'Internal Server Error' });
+  // Log full error details
+  logger.error('Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+    body: req.body,
+  });
+
+  // Don't expose internal errors in production
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const statusCode = err instanceof Error ? 500 : 500;
+
+  res.status(statusCode).json({
+    error: 'Internal Server Error',
+    ...(isDevelopment && { message: err.message, stack: err.stack }),
+  });
 });
 
 const PORT = process.env.PORT || 3001;

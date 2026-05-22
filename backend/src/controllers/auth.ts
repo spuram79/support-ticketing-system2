@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db';
+import { logger } from '../utils/logger';
 
 export const login = async (req: Request, res: Response): Promise<Response | void> => {
   try {
@@ -36,7 +37,7 @@ export const login = async (req: Request, res: Response): Promise<Response | voi
       user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
     return res.status(500).json({ error: 'Login failed' });
   }
 };
@@ -72,7 +73,7 @@ export const register = async (req: Request, res: Response): Promise<Response | 
       user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName },
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error:', error);
     return res.status(500).json({ error: 'Registration failed' });
   }
 };
@@ -86,7 +87,7 @@ export const getProfile = async (req: Request, res: Response): Promise<Response 
 
     return res.json({ success: true, data: user });
   } catch (error) {
-    console.error('Get profile error:', error);
+    logger.error('Get profile error:', error);
     return res.status(500).json({ error: 'Failed to get profile' });
   }
 };
@@ -101,7 +102,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<Respon
 
     return res.json({ success: true, data: user });
   } catch (error) {
-    console.error('Update profile error:', error);
+    logger.error('Update profile error:', error);
     return res.status(500).json({ error: 'Failed to update profile' });
   }
 };
@@ -130,7 +131,7 @@ export const changePassword = async (req: Request, res: Response): Promise<Respo
 
     return res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
-    console.error('Change password error:', error);
+    logger.error('Change password error:', error);
     return res.status(500).json({ error: 'Failed to change password' });
   }
 };

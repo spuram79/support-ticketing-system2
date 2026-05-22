@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { createLogger } from './utils/logger';
 
 declare global {
   namespace NodeJS {
@@ -31,4 +30,3 @@ declare global {
 const prisma = globalThis.__globalPrisma__ ||= prismaClientSingleton();
 
 export { prisma };
-export const logger = createLogger();
