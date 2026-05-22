@@ -1,0 +1,13 @@
+import { Response } from 'express';
+export declare const getTickets: (req: any, res: Response) => Promise<void>;
+export declare const getMyTickets: (req: any, res: Response) => Promise<void>;
+export declare const getTicket: (req: any, res: Response) => Promise<void>;
+export declare const createTicket: (req: any, res: Response) => Promise<void>;
+export declare const updateTicket: (req: any, res: Response) => Promise<void>;
+export declare const deleteTicket: (req: any, res: Response) => Promise<void>;
+export declare const addComment: (req: any, res: Response) => Promise<void>;
+export declare const assignTicket: (req: any, res: Response) => Promise<void>;
+export declare const toggleFollow: (req: any, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const addInternalNote: (req: any, res: Response) => Promise<void>;
+export declare const forwardTicket: (req: any, res: Response) => Promise<void>;
+export declare const getTicketStats: (req: any, res: Response) => Promise<void>;
